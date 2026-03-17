@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>KAST CARD</title>
+  <meta name="description" content="Your personalized KAST community card." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0C0C0E;
+      --white: #FFF;
+      --g1: #CFCFCF;
+      --g2: #C5C7CA;
+      --g3: #AFAFB2;
+      --ac: #1EBA98;
+      --ac-dim: rgba(30, 186, 152, .13);
+      --ac-gw: rgba(30, 186, 152, .38);
+      --sur: #111114;
+      --bd: rgba(255, 255, 255, .07);
+      --bda: rgba(30, 186, 152, .28);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Inter', sans-serif
+    }
+
+    /* ── APP SHELL ── */
+    #app {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden
+    }
+
+    /* ── SLIDES ── */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 88px 28px 72px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .45s ease, transform .45s cubic-bezier(.4, 0, .2, 1);
+      transform: translateY(48px);
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0)
+    }
+
+    .slide.up {
+      opacity: 0;
+      transform: translateY(-48px);
+      pointer-events: none
+    }
+
+    /* ── BACKGROUND ── */
+    #noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .35;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0
+    }
+
+    .orb1 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(30, 186, 152, .09), transparent 70%);
+      top: -160px;
+      right: -90px;
+      animation: flt 9s ease-in-out infinite
+    }
+
+    .orb2 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(30, 186, 152, .06), transparent 70%);
+      bottom: 40px;
+      left: -130px;
+      animation: flt 9s ease-in-out 4.5s infinite
+    }
+
+    @keyframes flt {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-22px)
+      }
+    }
+
+    /* ── HEADER ── */
+    #gHdr {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 18px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(12, 12, 14, .6);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--bd)
+    }
+
+    #gHdr img {
+      height: 28px
+    }
+
+    .hbadge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--ac);
+      background: var(--ac-dim);
+      border: 1px solid var(--bda);
+      padding: 5px 13px;
+      border-radius: 100px;
+      letter-spacing: .08em
+    }
+
+    /* ── PROGRESS BAR ── */
+    #progBar {
+      position: fixed;
+      top: 65px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      z-index: 49;
+      display: flex;
+      gap: 4px;
+      padding: 0 36px
+    }
+
+    .prog-seg {
+      flex: 1;
+      height: 2px;
+      border-radius: 1px;
+      background: rgba(255, 255, 255, .1);
+      overflow: hidden;
+      transition: flex .3s
+    }
+
+    .prog-seg .fill {
+      height: 100%;
+      width: 0;
+      background: var(--ac);
+      transition: width .4s ease
+    }
+
+    .prog-seg.done .fill {
+      width: 100%
+    }
+
+    .prog-seg.active .fill {
+      width: 100%;
+      animation: progAnim .4s ease forwards
+    }
+
+    @keyframes progAnim {
+      from {
+        width: 0
+      }
+
+      to {
+        width: 100%
+      }
+    }
+
+    /* ── NAV ── */
+    #navPrev,
+    #navNext {
+      position: fixed;
+      bottom: 24px;
+      z-index: 50;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid var(--bd);
+      color: var(--g2);
+      border-radius: 100px;
+      padding: 9px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+      transition: all .2s;
+      letter-spacing: .01em
+    }
+
+    #navPrev {
+      left: 50%;
+      transform: translateX(calc(-50% - 90px))
+    }
+
+    #navNext {
+      left: 50%;
+      transform: translateX(calc(-50% + 90px))
+    }
+
+    #navPrev.on,
+    #navNext.on {
+      display: flex
+    }
+
+    #navPrev:hover,
+    #navNext:hover {
+      background: var(--ac);
+      color: #0C0C0E;
+      border-color: var(--ac);
+      box-shadow: 0 0 20px var(--ac-gw)
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--g3);
+      display: none;
+      letter-spacing: .06em
+    }
+
+    .slide-counter.on {
+      display: block
+    }
+
+    /* ── LANDING ── */
+    .hero-eye {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--ac);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 20px
+    }
+
+    .hero-eye::before,
+    .hero-eye::after {
+      content: '';
+      width: 36px;
+      height: 1px;
+      background: var(--ac)
+    }
+
+    h1.big {
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 900;
+      line-height: 1.04;
+      letter-spacing: -.03em;
+      margin-bottom: 16px;
+      text-align: center
+    }
+
+    h1.big span {
+      background: linear-gradient(135deg, #fff 0%, var(--g2) 40%, var(--ac) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--g3);
+      max-width: 380px;
+      text-align: center;
+      line-height: 1.7;
+      margin-bottom: 36px
+    }
+
+    /* terminal */
+    .term-box {
+      width: 100%;
+      max-width: 520px;
+      background: #0f0f12;
+      border: 1px solid var(--bd);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .02), 0 40px 70px rgba(0, 0, 0, .5), 0 0 40px rgba(30, 186, 152, .05)
+    }
+
+    .tbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: #161619;
+      border-bottom: 1px solid var(--bd)
+    }
+
+    .tdots {
+      display: flex;
+      gap: 6px
+    }
+
+    .tdots span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%
+    }
+
+    .tdots span:nth-child(1) {
+      background: #FF5F57
+    }
+
+    .tdots span:nth-child(2) {
+      background: #FEBC2E
+    }
+
+    .tdots span:nth-child(3) {
+      background: #28C840
+    }
+
+    .ttitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--g3);
+      letter-spacing: .05em
+    }
+
+    .lbar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--ac), transparent);
+      background-size: 200%;
+      animation: sh 1.4s ease-in-out infinite;
+      display: none
+    }
+
+    .lbar.on {
+      display: block
+    }
+
+    @keyframes sh {
+      0% {
+        background-position: -200% 0
+      }
+
+      100% {
+        background-position: 200% 0
+      }
+    }
+
+    .tbody {
+      padding: 20px 20px 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px
+    }
+
+    .cli {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 13px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .3s, transform .3s
+    }
+
+    .cli.show {
+      opacity: 1;
+      transform: none
+    }
+
+    .cst {
+      color: var(--ac);
+      font-weight: 600;
+      min-width: 26px;
+      flex-shrink: 0
+    }
+
+    .cst.pnd {
+      color: var(--g3)
+    }
+
+    .cst.act {
+      animation: blink 1s ease-in-out infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .clbl {
+      color: var(--ac);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 12px
+    }
+
+    .cdsc {
+      color: var(--g3);
+      font-size: 11px
+    }
+
+    .ccode {
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--bd);
+      border-left: 3px solid var(--bda);
+      border-radius: 6px;
+      padding: 7px 11px;
+      font-size: 11px;
+      color: var(--g1);
+      margin-top: 6px
+    }
+
+    .ccode .kw {
+      color: #C792EA
+    }
+
+    .ccode .str {
+      color: var(--ac)
+    }
+
+    .irow {
+      padding: 16px 20px 20px;
+      border-top: 1px solid var(--bd);
+      display: flex;
+      gap: 10px
+    }
+
+    .inp {
+      flex: 1;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--white);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s
+    }
+
+    .inp::placeholder {
+      color: var(--g3)
+    }
+
+    .inp:focus {
+      border-color: var(--bda);
+      box-shadow: 0 0 0 3px rgba(30, 186, 152, .07)
+    }
+
+    .bgo {
+      background: var(--ac);
+      color: #0C0C0E;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s, transform .15s, box-shadow .2s
+    }
+
+    .bgo:hover {
+      background: #22d4b0;
+      box-shadow: 0 0 20px var(--ac-gw);
+      transform: translateY(-1px)
+    }
+
+    .bgo:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .errmsg {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #FF5F57;
+      padding: 0 20px 14px;
+      display: none
+    }
+
+    .errmsg.on {
+      display: block
+    }
+
+    /* ── SLIDE COMPONENTS ── */
+    .s-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ac);
+      margin-bottom: 14px
+    }
+
+    .s-big-num {
+      font-size: clamp(70px, 12vw, 120px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.04em;
+      background: linear-gradient(135deg, #fff, var(--ac));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .s-sub {
+      font-size: 17px;
+      color: var(--g2);
+      margin-bottom: 36px;
+      font-weight: 400
+    }
+
+    /* Discord channels */
+    .ch-wrap {
+      width: 100%;
+      max-width: 540px
+    }
+
+    .ch-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 11px
+    }
+
+    .ch-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--g2);
+      min-width: 148px;
+      max-width: 148px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0
+    }
+
+    .ch-bar-wrap {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, .07);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .ch-bar {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--ac), #0ed4a8);
+      width: 0;
+      transition: width 1s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    .ch-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--g3);
+      min-width: 40px;
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 22px;
+      background: var(--ac-dim);
+      border: 1px solid var(--bda);
+      border-radius: 100px;
+      padding: 8px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--ac);
+      font-weight: 600
+    }
+
+    /* Twitter single stat slide */
+    .tw-single {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center
+    }
+
+    .tw-emoji {
+      font-size: 64px;
+      margin-bottom: 24px;
+      display: block;
+      filter: drop-shadow(0 0 24px rgba(30, 186, 152, .35))
+    }
+
+    .tw-big {
+      font-size: clamp(72px, 13vw, 130px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.04em;
+      background: linear-gradient(135deg, #fff 0%, var(--ac) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text
+    }
+
+    .tw-desc {
+      font-size: 20px;
+      color: var(--g2);
+      margin-top: 10px;
+      font-weight: 400
+    }
+
+    .tw-ctx {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--g3);
+      margin-top: 8px
+    }
+
+    /* No twitter */
+    .tw-no {
+      text-align: center;
+      max-width: 360px;
+      margin: 0 auto;
+      align-self: center;
+      width: 100%
+    }
+
+    .tw-no-icon {
+      font-size: 72px;
+      margin-bottom: 22px;
+      display: block
+    }
+
+    .tw-no h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--g1)
+    }
+
+    .tw-no p {
+      font-size: 15px;
+      color: var(--g3);
+      line-height: 1.7
+    }
+
+    /* ── CARD SLIDE ── */
+    .card-wrap {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      width: 100%;
+      max-width: 800px
+    }
+
+    .card-side {
+      flex: 1 1 auto;
+      min-width: 0
+    }
+
+    .card-cont {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      margin: 0 auto
+    }
+
+    .card-img {
+      width: 100%;
+      display: block;
+      border-radius: 18px;
+      box-shadow: 0 28px 65px rgba(0, 0, 0, .85), 0 0 0 1px rgba(255, 255, 255, .04)
+    }
+
+    /* Gradient overlay ensures text is ALWAYS readable regardless of card */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, .52) 0%, transparent 38%),
+        linear-gradient(0deg, rgba(0, 0, 0, .60) 0%, transparent 45%);
+    }
+
+    .card-mid-bg {
+      background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .25), transparent);
+      padding: 8px 0;
+      border-radius: 8px;
+    }
+
+    .card-pattern {
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      opacity: .05;
+      background-image: url('patterns/kast_pattern_grid-outline.svg');
+      background-size: 110px;
+      pointer-events: none
+    }
+
+    .ctop {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between
+    }
+
+    .pfp-wrap {
+      position: relative
+    }
+
+    .pfp-glow {
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(#1EBA98, transparent, #1EBA98);
+      animation: spin 4s linear infinite;
+      z-index: 0;
+      opacity: .55
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .cpfp {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, .3);
+      object-fit: cover;
+      background: #1a1a1a;
+      position: relative;
+      z-index: 1
+    }
+
+    .clogo {
+      height: 20px;
+      opacity: .95;
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .5))
+    }
+
+    /* Card text — always white with strong shadow for readability */
+    .c-user {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .9), 0 0 20px rgba(0, 0, 0, .7);
+      margin-bottom: 2px
+    }
+
+    .c-tw-handle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: rgba(255, 255, 255, .65);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, .8)
+    }
+
+    .c-stats {
+      display: flex;
+      gap: 14px;
+      margin-top: 10px;
+      flex-wrap: wrap
+    }
+
+    .csv {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .9)
+    }
+
+    .csl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, .55);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, .8)
+    }
+
+    .c-tw-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 9px;
+      flex-wrap: wrap
+    }
+
+    .ctwv {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .9)
+    }
+
+    .ctwl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, .5);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, .8)
+    }
+
+    .cbottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between
+    }
+
+    .cch-lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, .5);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, .8)
+    }
+
+    .cch-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, .9)
+    }
+
+    .cbadge {
+      background: rgba(0, 0, 0, .45);
+      border: 1px solid rgba(30, 186, 152, .6);
+      backdrop-filter: blur(6px);
+      border-radius: 100px;
+      padding: 5px 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #1EBA98;
+      text-shadow: none
+    }
+
+    /* Selector */
+    .c-sel {
+      flex: 0 0 172px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 460px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--bda) transparent;
+      padding-right: 4px
+    }
+
+    .c-sel::-webkit-scrollbar {
+      width: 3px
+    }
+
+    .c-sel::-webkit-scrollbar-thumb {
+      background: var(--bda);
+      border-radius: 2px
+    }
+
+    .sel-lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--g3);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 4px
+    }
+
+    .c-opt {
+      position: relative;
+      border-radius: 9px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      flex-shrink: 0;
+      transition: border-color .2s, transform .15s, box-shadow .2s
+    }
+
+    .c-opt img {
+      width: 100%;
+      display: block;
+      opacity: .65;
+      transition: opacity .2s
+    }
+
+    .c-opt:hover img {
+      opacity: .88
+    }
+
+    .c-opt:hover {
+      transform: scale(1.02)
+    }
+
+    .c-opt.sel {
+      border-color: var(--ac);
+      box-shadow: 0 0 12px rgba(30, 186, 152, .3)
+    }
+
+    .c-opt.sel img {
+      opacity: 1
+    }
+
+    .c-opt-name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, .75));
+      padding: 14px 7px 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      color: rgba(255, 255, 255, .7);
+      text-align: center
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 460px;
+      margin: 12px auto 0
+    }
+
+    .btn-dl,
+    .btn-share {
+      flex: 1;
+      background: transparent;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: center;
+      border: none
+    }
+
+    .btn-dl {
+      border: 1px solid var(--bda);
+      color: var(--ac)
+    }
+
+    .btn-dl:hover {
+      background: var(--ac-dim);
+      box-shadow: 0 0 16px rgba(30, 186, 152, .12)
+    }
+
+    .btn-share {
+      background: var(--white);
+      color: #0C0C0E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      padding: 12px 18px
+    }
+
+    .btn-share:hover {
+      background: #e0e0e0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, .12)
+    }
+
+    .btn-share svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0
+    }
+
+    /* footer credit */
+    #devCredit {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: rgba(175, 175, 178, .35);
+      letter-spacing: .06em;
+      white-space: nowrap;
+      transition: color .2s
+    }
+
+    #devCredit a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    #devCredit:hover,
+    #devCredit a:hover {
+      color: var(--ac)
+    }
+
+    /* responsive */
+    @media(max-width:760px) {
+      .card-wrap {
+        flex-direction: column-reverse
+      }
+
+      .c-sel {
+        flex-direction: row;
+        flex: none;
+        width: 100%;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-right: 0;
+        padding-bottom: 6px
+      }
+
+      .c-opt {
+        flex: 0 0 108px;
+        min-width: 108px
+      }
+
+      #navPrev {
+        left: 50%;
+        transform: translateX(calc(-50% - 80px))
+      }
+
+      #navNext {
+        left: 50%;
+        transform: translateX(calc(-50% + 80px))
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="noise"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <header id="gHdr">
+    <img src="logo/logo-light-bg-transparent.svg" alt="KAST" />
+    <span class="hbadge">CARD v1.0</span>
+  </header>
+
+  <div id="progBar"></div>
+
+  <button id="navPrev" onclick="nav(-1)">← Back</button>
+  <div class="slide-counter" id="slideCounter"></div>
+  <button id="navNext" onclick="nav(1)">Next →</button>
+
+  <div id="app">
+    <!-- Slide 0: Landing (always first) -->
+    <div class="slide active" id="s0">
+      <p class="hero-eye">Community Recap</p>
+      <h1 class="big"><span>Your KAST Card</span></h1>
+      <p class="hero-sub">Enter your Discord username and explore your community story.</p>
+      <div class="term-box">
+        <div class="tbar">
+          <div class="tdots"><span></span><span></span><span></span></div>
+          <span class="ttitle">kast-cli v1.0</span>
+          <span></span>
+        </div>
+        <div class="lbar" id="lbar"></div>
+        <div class="tbody">
+          <div class="cli" id="c1"><span class="cst pnd" id="c1s">[ ]</span>
+            <div><span class="clbl">Handle Lock</span><span class="cdsc" id="c1d">Waiting for username…</span></div>
+          </div>
+          <div class="cli" id="c2"><span class="cst pnd" id="c2s">[ ]</span>
+            <div><span class="clbl">Data Scan</span><span class="cdsc" id="c2d">Retrieving community stats</span></div>
+          </div>
+          <div class="cli" id="c3"><span class="cst pnd" id="c3s">[ ]</span>
+            <div><span class="clbl">Card Render</span><span class="cdsc" id="c3d">Generating your slides</span></div>
+          </div>
+        </div>
+        <div class="irow">
+          <input class="inp" id="uinp" type="text" placeholder="your_discord_username" autocomplete="off"
+            spellcheck="false" />
+          <button class="bgo" id="gBtn" onclick="go()">Generate</button>
+        </div>
+        <div class="errmsg" id="errMsg"></div>
+      </div>
+    </div>
+    <!-- Dynamic slides injected here by JS -->
+  </div>
+
+  <!-- Footer credit (always visible) -->
+  <div id="devCredit">dev — <a href="https://x.com/kuznetsjeka" target="_blank" rel="noopener">Kuznets</a></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // ── Constants ─────────────────────────────────────────────────────────────
+    const CARDS = [
+      { f: 'card/Bitcoin-Black-Card.png', n: 'Bitcoin Black' },
+      { f: 'card/Founders-Edition.png', n: 'Founders' },
+      { f: 'card/K-Card.png', n: 'K Classic' },
+      { f: 'card/Solana-Card.png', n: 'Solana' },
+      { f: 'card/Solana-Gold-Card.png', n: 'Solana Gold' },
+      { f: 'card/Solana-Illuma-Card.png', n: 'Illuma' },
+      { f: 'card/Solana-Solid-Gold-Card.png', n: 'Solid Gold' },
+      { f: 'card/X-Card.png', n: 'X Card' },
+      { f: 'card/design-card.png', n: 'Design' },
+      { f: 'card/pengu-black.png', n: 'Pengu Black' },
+      { f: 'card/pengu-gold.png', n: 'Pengu Gold' },
+      { f: 'card/pengu-white.png', n: 'Pengu White' },
+    ];
+
+    const TW_STATS = [
+      { key: 'посмотры', label: 'Total Views', emoji: '👁️', ctx: 'impressions across all posts' },
+      { key: 'like', label: 'Total Likes', emoji: '♥️', ctx: 'people loved your content' },
+      { key: 'post', label: 'Posts Made', emoji: '✏️', ctx: 'tweets sent to the world' },
+      { key: 'reply', label: 'Replies', emoji: '💬', ctx: 'conversations you joined' },
+      { key: 'ретвит', label: 'Retweets', emoji: '🔁', ctx: 'others shared your thoughts' },
+      { key: 'цитата', label: 'Quote Tweets', emoji: '🗣️', ctx: 'quoted with added context' },
+    ];
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    let allUsers = null, curUser = null, selCard = 0;
+    let slides = [], cur = 0; // slides = ordered list of slide elements
+
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+    const fmt = n => { if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return String(n) };
+
+    function totalMsgs(u) { return Object.values(u.message_count || {}).reduce((a, b) => a + b, 0) }
+    function topChannel(u) {
+      const e = Object.entries(u.message_count || {}).sort((a, b) => b[1] - a[1]);
+      if (!e.length) return '—';
+      return e[0][0].replace(/^[^\w\u00C0-\u024F\u0400-\u04FF・]+/, '').split('・').pop() || e[0][0];
+    }
+    function rankOf(u, all) {
+      const s = [...all].sort((a, b) => totalMsgs(b) - totalMsgs(a));
+      return s.findIndex(x => x.id === u.id) + 1;
+    }
+    function rankLabel(r) {
+      if (r === 1) return '🥇 #1 Overall'; if (r === 2) return '🥈 #2'; if (r === 3) return '🥉 #3';
+      if (r <= 10) return '🔥 Top 10'; if (r <= 50) return '⭐ Top 50'; return '# ' + r;
+    }
+
+    // ── Initial CLI ───────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      [300, 600, 900].forEach((t, i) => setTimeout(() => document.getElementById('c' + (i + 1)).classList.add('show'), t));
+    });
+
+    // ── Generate ──────────────────────────────────────────────────────────────
+    async function go() {
+      const raw = document.getElementById('uinp').value.trim();
+      if (!raw) return;
+      const btn = document.getElementById('gBtn'), err = document.getElementById('errMsg');
+      btn.disabled = true; err.classList.remove('on');
+
+      // reset CLI
+      ['c1', 'c2', 'c3'].forEach(id => {
+        const el = document.getElementById(id); el.classList.add('show');
+        ['c1s', 'c2s', 'c3s'].forEach(sid => {
+          const s = document.getElementById(sid);
+          s.className = 'cst pnd'; s.style.color = ''; s.textContent = '[ ]';
+        });
+        el.querySelectorAll('.ccode').forEach(x => x.remove());
+      });
+      document.getElementById('c1d').textContent = 'Waiting for username…';
+      document.getElementById('c2d').textContent = 'Retrieving community stats';
+      document.getElementById('c3d').textContent = 'Generating your slides';
+
+      const lb = document.getElementById('lbar'); lb.classList.add('on');
+
+      if (!allUsers) {
+        try { const r = await fetch('user_stats.json'); allUsers = await r.json(); }
+        catch { err.textContent = 'Failed to load data.'; err.classList.add('on'); btn.disabled = false; lb.classList.remove('on'); return; }
+      }
+
+      const q = raw.toLowerCase().replace(/\s+/g, '');
+      const found = allUsers.find(u => {
+        const n = (u.user_name || u.server_name || '').toLowerCase().replace(/\s+/g, '');
+        return n === q || n.includes(q);
+      });
+      curUser = found || null;
+
+      // CLI anim
+      const c1s = document.getElementById('c1s'), c1d = document.getElementById('c1d');
+      const c2s = document.getElementById('c2s'), c2d = document.getElementById('c2d');
+      const c3s = document.getElementById('c3s'), c3d = document.getElementById('c3d');
+
+      c1s.className = 'cst act'; c1d.textContent = 'Syncing handle…';
+      await delay(650);
+
+      if (!found) {
+        c1s.className = 'cst'; c1s.style.color = '#FF5F57'; c1s.textContent = '[✗]';
+        c1d.textContent = 'User not found.'; lb.classList.remove('on'); btn.disabled = false;
+        err.textContent = `"${raw}" not found. Try exact Discord username.`; err.classList.add('on');
+        return;
+      }
+      c1s.className = 'cst'; c1s.textContent = '[✓]'; c1d.textContent = 'Identity confirmed.';
+      const cc = document.createElement('div'); cc.className = 'ccode';
+      cc.innerHTML = `<span class="kw">const</span> username = <span class="str">"${found.user_name || found.server_name}"</span>;`;
+      document.getElementById('c1').querySelector('div').appendChild(cc);
+
+      await delay(400);
+      c2s.className = 'cst act'; c2d.textContent = 'Fetching messages & tweets…';
+      await delay(700);
+      c2s.className = 'cst'; c2s.textContent = '[✓]';
+      c2d.textContent = `${totalMsgs(found).toLocaleString()} msgs indexed.`;
+
+      await delay(350);
+      c3s.className = 'cst act'; c3d.textContent = 'Building your recap…';
+      await delay(650);
+      c3s.className = 'cst'; c3s.textContent = '[✓]'; c3d.textContent = 'Slides ready.';
+      lb.classList.remove('on');
+
+      buildAllSlides(found);
+      await delay(250);
+      goTo(1);
+      btn.disabled = false;
+    }
+
+    // ── Build all dynamic slides ──────────────────────────────────────────────
+    function buildAllSlides(u) {
+      // Remove old dynamic slides
+      document.querySelectorAll('.dslide').forEach(el => el.remove());
+      slides = [];
+      slides.push(document.getElementById('s0'));
+
+      const app = document.getElementById('app');
+
+      // ── Slide: Discord ──
+      const sd = makeSlide('discord');
+      const total = totalMsgs(u);
+      const r = rankOf(u, allUsers);
+      const entries = Object.entries(u.message_count || {}).sort((a, b) => b[1] - a[1]).slice(0, 6);
+      const max = entries[0] ? entries[0][1] : 1;
+
+      let chHTML = entries.map(([ch, cnt]) => {
+        const name = ch.replace(/^[^\w\u00C0-\u024F\u0400-\u04FF・]+/, '').split('・').pop() || ch;
+        const pct = Math.round(cnt / max * 100);
+        return `<div class="ch-row">
+      <div class="ch-name">${name}</div>
+      <div class="ch-bar-wrap"><div class="ch-bar" data-p="${pct}"></div></div>
+      <div class="ch-val">${fmt(cnt)}</div></div>`;
+      }).join('');
+
+      sd.innerHTML = `
+    <p class="s-label">Discord Activity</p>
+    <div class="s-big-num" id="dNum" style="opacity:0;transform:scale(.85)">${total.toLocaleString()}</div>
+    <div class="s-sub" style="opacity:0;transform:translateY(10px)">total messages sent</div>
+    <div class="ch-wrap" style="margin-top:8px">${chHTML}</div>
+    <div class="rank-badge" style="opacity:0">${rankLabel(r)}</div>`;
+      sd.querySelectorAll('.ch-row').forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateX(-16px)'; });
+      app.appendChild(sd); slides.push(sd);
+
+      // ── Twitter slides (one per stat) or No Twitter ──
+      if (u.twitter_stats) {
+        TW_STATS.forEach((def, i) => {
+          const val = u.twitter_stats[def.key] || 0;
+          const st = makeSlide('tw');
+          st.innerHTML = `
+        <div class="tw-single">
+          <span class="tw-emoji" style="opacity:0;transform:scale(.7)">${def.emoji}</span>
+          <div class="tw-big" style="opacity:0;transform:scale(.85)">${fmt(val)}</div>
+          <div class="tw-desc" style="opacity:0;transform:translateY(12px)">${def.label}</div>
+          <div class="tw-ctx" style="opacity:0;transform:translateY(12px)">${val.toLocaleString() + ' · ' + def.ctx}</div>
+        </div>`;
+          app.appendChild(st); slides.push(st);
+        });
+      } else {
+        const st = makeSlide('tw-no');
+        st.innerHTML = `<div class="tw-no" style="opacity:0;transform:translateY(20px)">
+      <span class="tw-no-icon">𝕏</span>
+      <h2>No Twitter Activity</h2>
+      <p>This user's X/Twitter stats aren't tracked yet.<br/>Keep posting — your card will be even bigger! 🚀</p>
+    </div>`;
+        app.appendChild(st); slides.push(st);
+      }
+
+      // ── Card slide ──
+      const sc = makeSlide('card');
+      sc.innerHTML = buildCardHTML(u);
+      app.appendChild(sc); slides.push(sc);
+      selCard = 0;
+      buildSelector(u);
+      applyCard(CARDS[0]);
+
+      updateProgress();
+    }
+
+    function makeSlide(cls) {
+      const d = document.createElement('div');
+      d.className = 'slide dslide ' + cls;
+      return d;
+    }
+
+    // ── Navigation ────────────────────────────────────────────────────────────
+    function goTo(n) {
+      if (n < 0 || n >= slides.length) return;
+      slides.forEach((s, i) => {
+        s.classList.remove('active', 'up');
+        if (i < n) s.classList.add('up');
+        else if (i === n) s.classList.add('active');
+      });
+      cur = n;
+      updateProgress();
+      runAnim(n);
+    }
+    function nav(d) { goTo(cur + d) }
+
+    document.addEventListener('keydown', e => {
+      if (['ArrowRight', 'ArrowDown'].includes(e.key)) nav(1);
+      if (['ArrowLeft', 'ArrowUp'].includes(e.key)) nav(-1);
+    });
+
+    function updateProgress() {
+      const isResult = slides.length > 1 && cur > 0;
+      document.getElementById('navPrev').classList.toggle('on', cur > 1);
+      document.getElementById('navNext').classList.toggle('on', isResult && cur < slides.length - 1);
+
+      const sc = document.getElementById('slideCounter');
+      sc.classList.toggle('on', isResult);
+      if (isResult) sc.textContent = `${cur} / ${slides.length - 1}`;
+
+      const pb = document.getElementById('progBar');
+      pb.innerHTML = '';
+      if (isResult) {
+        for (let i = 1; i < slides.length; i++) {
+          const seg = document.createElement('div'); seg.className = 'prog-seg';
+          const fill = document.createElement('div'); fill.className = 'fill';
+          if (i < cur) seg.classList.add('done');
+          if (i === cur) seg.classList.add('active');
+          seg.appendChild(fill); pb.appendChild(seg);
+        }
+      }
+    }
+
+    // ── Per-slide animations ───────────────────────────────────────────────────
+    function runAnim(n) {
+      const s = slides[n];
+      if (!s) return;
+
+      // Discord
+      if (s.classList.contains('discord')) {
+        const num = s.querySelector('.s-big-num');
+        const sub = s.querySelector('.s-sub');
+        const rows = s.querySelectorAll('.ch-row');
+        const badge = s.querySelector('.rank-badge');
+        if (num) {
+          setTimeout(() => { num.style.transition = 'opacity .6s ease,transform .6s ease'; num.style.opacity = '1'; num.style.transform = 'scale(1)'; }, 200);
+          setTimeout(() => { sub.style.transition = 'opacity .6s ease,transform .6s ease'; sub.style.opacity = '1'; sub.style.transform = 'none'; }, 450);
+        }
+        rows.forEach((r, i) => setTimeout(() => {
+          r.style.transition = 'opacity .5s ease,transform .5s ease';
+          r.style.opacity = '1'; r.style.transform = 'none';
+          setTimeout(() => { r.querySelector('.ch-bar').style.width = r.querySelector('.ch-bar').dataset.p + '%'; }, 120);
+        }, 650 + i * 110));
+        if (badge) setTimeout(() => { badge.style.transition = 'opacity .5s ease'; badge.style.opacity = '1'; }, 650 + 6 * 110 + 150);
+        return;
+      }
+
+      // Twitter stat
+      if (s.classList.contains('tw')) {
+        const emoji = s.querySelector('.tw-emoji');
+        const big = s.querySelector('.tw-big');
+        const desc = s.querySelector('.tw-desc');
+        const ctx = s.querySelector('.tw-ctx');
+        if (emoji) setTimeout(() => { emoji.style.transition = 'opacity .5s ease,transform .5s cubic-bezier(.4,0,.2,1)'; emoji.style.opacity = '1'; emoji.style.transform = 'scale(1)'; }, 150);
+        if (big) setTimeout(() => { big.style.transition = 'opacity .6s ease,transform .6s cubic-bezier(.4,0,.2,1)'; big.style.opacity = '1'; big.style.transform = 'scale(1)'; }, 350);
+        if (desc) setTimeout(() => { desc.style.transition = 'opacity .5s ease,transform .5s ease'; desc.style.opacity = '1'; desc.style.transform = 'none'; }, 600);
+        if (ctx) setTimeout(() => { ctx.style.transition = 'opacity .5s ease,transform .5s ease'; ctx.style.opacity = '1'; ctx.style.transform = 'none'; }, 750);
+        return;
+      }
+
+      // No twitter
+      if (s.classList.contains('tw-no')) {
+        const el = s.querySelector('.tw-no');
+        if (el) setTimeout(() => { el.style.transition = 'opacity .7s ease,transform .7s ease'; el.style.opacity = '1'; el.style.transform = 'none'; }, 200);
+        return;
+      }
+
+      // Card
+      if (s.classList.contains('card')) {
+        const w = s.querySelector('.card-wrap');
+        if (w) setTimeout(() => { w.style.transition = 'opacity .6s ease,transform .6s ease'; w.style.opacity = '1'; w.style.transform = 'none'; }, 150);
+        return;
+      }
+    }
+
+    // ── CARD SLIDE HTML ───────────────────────────────────────────────────────
+    function buildCardHTML(u) {
+      const total = totalMsgs(u), chCnt = Object.keys(u.message_count || {}).length;
+      const r = rankOf(u, allUsers);
+      const pfpSrc = u.pfp || 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+      const statsHTML = [{ v: fmt(total), l: 'Messages' }, { v: chCnt, l: 'Channels' }, { v: '#' + r, l: 'Rank' }]
+        .map(x => `<div><div class="csv">${x.v}</div><div class="csl">${x.l}</div></div>`).join('');
+
+      let twRowHTML = '';
+      if (u.twitter_stats) {
+        const ts = u.twitter_stats;
+        twRowHTML = [{ v: fmt(ts.post || 0), l: 'Posts' }, { v: fmt(ts.like || 0), l: 'Likes' }, { v: fmt(ts['посмотры'] || 0), l: 'Views' }]
+          .map(x => `<div><div class="ctwv">${x.v}</div><div class="ctwl">${x.l}</div></div>`).join('');
+      }
+
+      const rl = r === 1 ? '🥇 #1' : r === 2 ? '🥈 #2' : r === 3 ? '🥉 #3' : r <= 10 ? '🔥 Top 10' : r <= 50 ? '⭐ Top 50' : '# ' + r;
+      const chName = topChannel(u);
+      const twHandle = u.twitter_name ? '@' + u.twitter_name : '';
+
+      return `<div class="card-wrap" style="opacity:0;transform:translateY(24px)">
+    <div class="card-side">
+      <div class="card-cont" id="cardCont">
+        <img class="card-img" id="cardImg" src="${CARDS[0].f}" alt="KAST Card"/>
+        <div class="card-pattern"></div>
+        <div class="card-overlay">
+          <div class="ctop">
+            <div class="pfp-wrap">
+              <div class="pfp-glow" id="pfpGlow"></div>
+              <img class="cpfp" src="${pfpSrc}" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
+            </div>
+            <img class="clogo" id="cLogo" src="logo/logo-dark-bg-transparent.svg" alt="KAST"/>
+          </div>
+          <div class="card-mid-bg">
+            <div class="c-user">${u.user_name || u.server_name}</div>
+            <div class="c-tw-handle">${twHandle}</div>
+            <div class="c-stats">${statsHTML}</div>
+            <div class="c-tw-row">${twRowHTML}</div>
+          </div>
+          <div class="cbottom">
+            <div><div class="cch-lbl">Top Channel</div><div class="cch-name">${chName}</div></div>
+            <div class="cbadge" id="cBadge">${rl}</div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-dl" onclick="dlCard()">↓ Download Card</button>
+        <button class="btn-share" onclick="shareOnX()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L2.07 2.25H8.08l4.261 5.636 5.903-5.636Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+    <div class="c-sel" id="cSel"><div class="sel-lbl">Choose Card</div></div>
+  </div>`;
+    }
+
+    function buildSelector(u) {
+      const sel = document.getElementById('cSel');
+      if (!sel) return;
+      sel.innerHTML = '<div class="sel-lbl">Choose Card</div>';
+      CARDS.forEach((c, i) => {
+        const d = document.createElement('div');
+        d.className = 'c-opt' + (i === selCard ? ' sel' : '');
+        d.innerHTML = `<img src="${c.f}" alt="${c.n}" loading="lazy"/><div class="c-opt-name">${c.n}</div>`;
+        d.onclick = () => { selCard = i; document.querySelectorAll('.c-opt').forEach((el, j) => el.classList.toggle('sel', j === i)); applyCard(c); };
+        sel.appendChild(d);
+      });
+    }
+
+    function applyCard(c) {
+      const img = document.getElementById('cardImg');
+      if (img) img.src = c.f;
+      const logo = document.getElementById('cLogo');
+      if (logo) logo.src = 'logo/logo-dark-bg-transparent.svg'; // always dark-bg version since overlay darkens anyway
+      // Badge accent stays same — overlay guarantees readability
+    }
+
+    async function dlCard() {
+      const cont = document.getElementById('cardCont');
+      if (!cont || !curUser) return;
+      try {
+        const cv = await html2canvas(cont, { scale: 2, useCORS: true, backgroundColor: null, logging: false });
+        const a = document.createElement('a');
+        a.download = `kast-card-${curUser.user_name || 'card'}.png`;
+        a.href = cv.toDataURL('image/png'); a.click();
+      } catch { alert('Right-click the card image to save.'); }
+    }
+
+    function shareOnX() {
+      const text = `I just got my @KASTxyz card 💳\n\nGet yours too: https://kast-card.vercel.app\n\n@PytheniansNFT @Coleta_Cripto @_Mrfiend`;
+      const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    document.getElementById('uinp').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  </script>
+</body>
+
+</html>
