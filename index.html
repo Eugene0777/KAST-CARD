@@ -1467,7 +1467,7 @@
               <div class="pfp-glow" id="pfpGlow"></div>
               <img class="cpfp" src="${pfpSrc}" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"/>
             </div>
-            <img class="clogo" id="cLogo" src="logo/logo-dark-bg-transparent.svg" alt="KAST"/>
+            <svg class="clogo" id="cLogo" viewBox="0 0 1019.42 213.77" xmlns="http://www.w3.org/2000/svg" style="height:20px;width:auto;opacity:.95;filter:drop-shadow(0 1px 4px rgba(0,0,0,.5))"><path fill="#fff" d="M456.88 2.85h-30.82L315.03 120.44V2.85H290.2v208.06h24.83v-58.5l36.25-38.25 77.63 96.75h30.83L368.69 96.18zM552.77 2.85 472 210.91h26.54l19.13-49.94H618.7l19.13 49.94h26.54L584.17 2.85zm-27.39 137.28 30.54-79.91c3.99-10.28 7.99-21.12 12.27-33.11 4.28 11.99 8.57 22.83 12.27 33.11L611 140.13zM781.52 95.61l-37.67-7.7c-13.69-3.14-37.1-9.13-37.1-33.68 0-20.55 16.84-33.68 45.67-33.68s48.8 12.27 50.51 39.67h25.68C827.76 23.97 802.07 0 754.41 0c-44.81 0-73.92 22.83-73.92 57.37 0 41.67 39.1 50.8 58.79 54.8l36.82 7.99c9.42 2.28 33.1 7.71 33.1 33.96 0 23.4-19.12 39.1-52.23 39.1-35.96 0-54.23-15.98-55.37-46.52h-25.97c.57 38.81 26.54 67.07 81.62 67.07 47.67 0 78.49-22.55 78.49-61.36s-31.96-52.23-54.23-56.8ZM843.6 2.85V25.4h75.35v185.51h25.12V25.4h75.35V2.85zM46.29 58.13l.64-55.28H0v80.56l44.98 21.7L0 127.56v83.31h46.88l-.63-57.13 100.42 57.17h36.7v-36.13l-138.4-69.66 138.4-67.33V2.85h-36.7z"/><path fill="#fff" d="m46.89 210.91.03-.04h-.03z"/></svg>
           </div>
           <div class="card-mid-bg">
             <div class="c-user">${u.user_name || u.server_name}</div>
@@ -1506,13 +1506,11 @@
       });
     }
 
-    function applyCard(c) {
-      const img = document.getElementById('cardImg');
-      if (img) img.src = c.f;
-      const logo = document.getElementById('cLogo');
-      if (logo) logo.src = 'logo/logo-dark-bg-transparent.svg'; // always dark-bg version since overlay darkens anyway
-      // Badge accent stays same — overlay guarantees readability
-    }
+    function applyCard(c){
+  const img=document.getElementById('cardImg');
+  if(img)img.src=c.f;
+  // logo is inlined SVG — always renders correctly on download
+}
 
     async function dlCard() {
       const cont = document.getElementById('cardCont');
@@ -1526,7 +1524,7 @@
     }
 
     function shareOnX() {
-      const text = `I just got my @KASTxyz card 💳\n\nGet yours too: https://kast-card-brown.vercel.app\n\n@PytheniansNFT @Coleta_Cripto @_Mrfiend`;
+      const text = `I just got my @KASTxyz card 💳\n\nGet yours too: https://kast-card.vercel.app\n\n@PytheniansNFT @Coleta_Cripto @_Mrfiend`;
       const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
       window.open(url, '_blank', 'noopener,noreferrer');
     }
