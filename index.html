@@ -723,18 +723,13 @@
     }
 
     /* Gradient overlay ensures text is ALWAYS readable regardless of card */
-    .card-overlay {
-      position: absolute;
-      inset: 0;
-      border-radius: 18px;
-      padding: 26px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, .52) 0%, transparent 38%),
-        linear-gradient(0deg, rgba(0, 0, 0, .60) 0%, transparent 45%);
-    }
+.card-overlay{
+  position:absolute;inset:0;border-radius:18px;padding:44px 26px 26px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.52) 0%, transparent 38%),
+    linear-gradient(0deg,   rgba(0,0,0,.60) 0%, transparent 45%);
+}
 
     .card-mid-bg {
       background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .25), transparent);
